@@ -1,7 +1,65 @@
 <!DOCTYPE html>
-    <html>
-        <body>   
-            <p> Yan Xiao Yu</p>
-        </body>
-    </html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanna Yan | Web Developer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="myprofile.jpg" alt="Vanna Yan" class="profile-img">
+            <h1>Vanna Yan</h1>
+            <p class="tagline">Web Developer & UI Designer</p>
+            <!-- <div class="social-links">
+                <a href="#"><img src="github-icon.svg" alt="GitHub"></a>
+                <a href="#"><img src="linkedin-icon.svg" alt="LinkedIn"></a>
+                <a href="#"><img src="twitter-icon.svg" alt="Twitter"></a>
+            </div> -->
+        </header>
+
+        <main>
+            <section class="card">
+                <h2><span class="icon">👋</span> About Me</h2>
+                <p>I create beautiful, functional websites with a focus on user experience. Currently specializing in front-end development with React.</p>
+            </section>
+
+            <section class="card">
+                <h2><span class="icon">💼</span> Experience</h2>
+                <div class="experience-item">
+                    <h3>Senior Frontend Developer</h3>
+                    <p class="company">TechSolutions Inc. • 2021-Present</p>
+                    <ul>
+                        <li>Lead development of company's flagship product</li>
+                        <li>Improved site performance by 40%</li>
+                    </ul>
+                </div>
+                <div class="experience-item">
+                    <h3>Web Developer</h3>
+                    <p class="company">Digital Creations • 2018-2021</p>
+                    <ul>
+                        <li>Built custom WordPress themes</li>
+                        <li>Developed e-commerce solutions</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2><span class="icon">📧</span> Contact</h2>
+                <p>Email: <a href="vanna@example.com">alex@example.com</a></p>
+                <p>Phone: (123) 456-7890</p>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; <span id="year"></span> Vanna Yan. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
 </html>
