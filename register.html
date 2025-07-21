@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Register</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="login-container">
+        <h2>User Register</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">password</label>
+                <input type="password" id="password" name="password" required>
+                <small>the password must be 8 characters</small>
+            </div>
+            <div class="form-group">
+                <label for="password">confirm password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+                <small>the password must be 8 characters</small>
+            </div>
+            <button type="submit">submit</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const password = document.getElementById('password').value;
+
+            if (password.length !== 8) {
+                alert('the password must be 8 characters');
+                return;
+            }
+            if (password !== document.getElementById('confirm_password').value) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            alert('Login successful!');
+
+        });
+    </script>
+</body>
+
+</html>
