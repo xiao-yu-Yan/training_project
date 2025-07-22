@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Demo</title>
+    <script>
+        // Client-side JavaScript
+        async function sayHello() {
+            try {
+                const response = await fetch('/sayHello');
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(data.message);
+                } else {
+                    alert('Error: Unable to fetch message from server.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: Something went wrong.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>HTML and JavaScript Demo</h1>
+    <button onclick="sayHello()">Click Me</button>
+</body>
+</html>
