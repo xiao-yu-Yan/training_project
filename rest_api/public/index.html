@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Using API</title>
+    <body>
+        <h1>List of Users</h1>
+        <ul id="user_list">
+        </ul>
+        <h1>Add new users</h1>
+        <form id="add_user_form">
+            <input type="text" id="user_name" placeholder="Enter user name" required>
+            <button type="submit" >Add User</button>
+        </form>
+        <script> 
+            const userList = document.getElementById('user_list');
+            const addUserForm = document.getElementById('add_user_form');
+            const userNameInput = document.getElementById('user_name');
+
+            function getAllUsers() {
+                fetch('/users')
+                    .then(response => response.json())
+                    .then(users=> {
+                        userList.innerHTML = ''; // Clear the list
+                        users.forEach(user => {
+                            const li = document.createElement('li');
+                            li.textContent = user.name;
+                            userList.appendChild(li);
+                        });
+                    })
+            }
+            // Add event listener for form submission
+            addUserForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const userName = userNameInput.value;
+                fetch('/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: userName })
+                })
+                .then(response => response.json())
+                .then(user => {
+                    const li = document.createElement('li');
+                    li.textContent = user.name;
+                    userList.appendChild(li);
+                    userNameInput.value = ''; // Clear the input field
+                });
+            });
+            getAllUsers();
+        </script>
+    </body>
+</html>
