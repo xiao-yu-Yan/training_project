@@ -1,0 +1,7 @@
+movie_api/node_modules/*
+movie_api/movies.json
+rest_api/node_modules/*
+movie_api/package-lock.json
+movie_api/package.json
+rest_api/package-lock.json
+rest_api/package.json
