@@ -1,106 +1,134 @@
 const express = require('express');
-const mysql = require('mysql');
 const bodyParser = require('body-parser');
+const mysql = require('mysql2');
+const cors = require('cors');
 const path = require('path');
-const { error } = require('console');
 
 const app = express();
-const port = 3000;
+app.use(cors());
+app.use(bodyParser.json());
 
-//Db connection
+app.use(express.static(path.join(__dirname, 'public')));
+
+// MySQL database connection
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'n3u3da!',
-    database: 'myapp'
+    database: 'movie_db'
 });
 
-// Connect to the database
-db.connect((err) => {
+db.connect(err => {
     if (err) {
         console.error('Error connecting to MySQL:', err);
         return;
     }
-    console.log('MySQL Connected...'); 
+    console.log('Connected to MySQL database');
 });
 
-// Middleware
-app.use(bodyParser.json()); 
-app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from public directory
+// Create movies table if it doesn't exist
+db.query(`
+    CREATE TABLE IF NOT EXISTS movies (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        year INT NOT NULL,
+        director VARCHAR(255) NOT NULL,
+        genre VARCHAR(255) NOT NULL,
+        rating DECIMAL(3,1) NOT NULL
+    )
+`, (err) => {
+    if (err) throw err;
+    console.log('Movies table ready');
+});
 
-// Routes
-app.get('/users', (req, res) => {
-    const sql = 'SELECT * FROM users';
-    db.query(sql, (err, results) => {
+// API Routes
+
+// Get all movies or search by title
+app.get('/api/movies', (req, res) => {
+    const searchTerm = req.query.search;
+    
+    let query = 'SELECT * FROM movies';
+    const params = [];
+    
+    if (searchTerm) {
+        query += ' WHERE title LIKE ?';
+        params.push(`%${searchTerm}%`);
+    }
+    
+    query += ' ORDER BY title';
+    
+    db.query(query, params, (err, results) => {
         if (err) {
-            console.error('Error fetching users:', err);
-            res.status(500).send('Server error');
-            return;
+            console.error('Error fetching movies:', err);
+            return res.status(500).json({ error: 'Database error' });
         }
         res.json(results);
     });
 });
 
-// Post a new user
-app.post('/users', (req, res) => {
-    const{name}=req.body;
-    if (!name) {
-        return res.status(400).send('Name is required');
+// Add a new movie
+app.post('/api/movies', (req, res) => {
+    const { title, year, director, genre, rating } = req.body;
+    
+    if (!title || !year || !director || !genre || !rating) {
+        return res.status(400).json({ error: 'All fields are required' });
     }
-    // Insert user into the database
-    const sql = 'INSERT INTO users (name) VALUES (?)';
-    db.query(sql, [name], (err, result) => {
+    
+    const query = 'INSERT INTO movies (title, year, director, genre, rating) VALUES (?, ?, ?, ?, ?)';
+    const params = [title, year, director, genre, rating];
+    
+    db.query(query, params, (err, result) => {
         if (err) {
-            console.error('Error inserting user:', err);
-            res.status(500).send('Server error');
-            return;
+            console.error('Error adding movie:', err);
+            return res.status(500).json({ error: 'Database error' });
         }
-        res.status(201).json({ id: result.insertId, name });
+        res.status(201).json({ id: result.insertId, ...req.body });
     });
-    const id = req.params.id;
 });
 
-// Update a user
-app.put('/users/:id', (req, res) => {
-    const id = req.params.id;
-    const { name } = req.body;
-    if (!name) {
-        return res.status(400).json('Name is required');
+// Update a movie
+app.put('/api/movies/:id', (req, res) => {
+    const movieId = req.params.id;
+    const { title, year, director, genre, rating } = req.body;
+    
+    if (!title || !year || !director || !genre || !rating) {
+        return res.status(400).json({ error: 'All fields are required' });
     }
-    // Update user in the database
-    const sql = 'UPDATE users SET name = ? WHERE id = ?';
-    db.query(sql, [name, id], (err, result) => {
+    
+    const query = 'UPDATE movies SET title = ?, year = ?, director = ?, genre = ?, rating = ? WHERE id = ?';
+    const params = [title, year, director, genre, rating, movieId];
+    
+    db.query(query, params, (err, result) => {
         if (err) {
-            console.error('Error updating user:', err);
-            res.status(500).json('Server error');
-            return;
+            console.error('Error updating movie:', err);
+            return res.status(500).json({ error: 'Database error' });
         }
         if (result.affectedRows === 0) {
-            return res.status(404).json('User not found');
+            return res.status(404).json({ error: 'Movie not found' });
         }
-        res.json({ id, name });
+        res.json({ id: movieId, ...req.body });
     });
 });
 
-// Delete a user
-app.delete('/users/:id', (req, res) => {    
-    const id = req.params.id;
-    // Delete user from the database
-    const sql = 'DELETE FROM users WHERE id = ?';
-    db.query(sql, [id], (err, result) => {
+// Delete a movie
+app.delete('/api/movies/:id', (req, res) => {
+    const movieId = req.params.id;
+    
+    const query = 'DELETE FROM movies WHERE id = ?';
+    
+    db.query(query, [movieId], (err, result) => {
         if (err) {
-            console.error('Error deleting user:', err);
-            res.status(500).json({error:'Server error'});
-            return;
+            console.error('Error deleting movie:', err);
+            return res.status(500).json({ error: 'Database error' });
         }
         if (result.affectedRows === 0) {
-            return res.status(404).json({error:'User not found'});
+            return res.status(404).json({ error: 'Movie not found' });
         }
-        res.json({ message: 'User deleted successfully' });
+        res.json({ message: 'Movie deleted successfully' });
     });
 });
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+const PORT = 3001;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
